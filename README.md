@@ -11,6 +11,10 @@ iOS - Fine tuned video compression in Swift 4
 * Proper orientation correction for back/front camera
 * Low performance compression during [Background Execution](https://developer.apple.com/library/archive/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/BackgroundExecution/BackgroundExecution.html), even when device is locked. (`beginBackgroundTask` must be called explicitly)
 
+## Install
+
+Copy [this](https://raw.githubusercontent.com/diegoperini/VideoCompressionTutorial/master/VideoCompressionTutorial/VideoCompression.swift) file to your project.
+
 ## Usage
 
 ```swift
