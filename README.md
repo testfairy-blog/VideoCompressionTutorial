@@ -47,3 +47,6 @@ let cancelable = compressh264VideoInBackground(
 // To cancel compression, set cancel flag to true and wait for handler invoke
 cancelable.cancel = true
 ```
+
+## How to initiate a background task (i.e while the phone is locked)
+[Please refer to the discussion here.](https://github.com/testfairy-blog/VideoCompressionTutorial/issues/1#issuecomment-518109326)
