@@ -1,5 +1,5 @@
-# Video Compressor using H264
-iOS - Fine tuned video compression in Swift 5  
+# Video Compression Tutorial
+iOS - Fine tuned video compression in Swift 5
 
 Forked from [VideoCompressionTutorial](https://github.com/testfairy-blog/VideoCompressionTutorial)  
 * Changes :  

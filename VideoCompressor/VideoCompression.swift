@@ -1,17 +1,5 @@
-//
-//  VideoCompressor.swift
-//  SSOKitDemo
-//
-//  Created by Akaash Dev on 14/08/19.
-//  Copyright © 2019 Akaash Dev. All rights reserved.
-//
-
-// Improved from
-// https://github.com/testfairy-blog/VideoCompressionTutorial
-// - Used Swift 5 Result type completion handler
-// - Added Compressioon Progress Handler
-// - Device camera video orientation fix handled automatically
-
+//  Created by Diego Perini, TestFairy
+//  License: Public Domain
 
 import AVFoundation
 import AssetsLibrary
