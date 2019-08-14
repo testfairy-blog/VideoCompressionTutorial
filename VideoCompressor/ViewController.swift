@@ -40,32 +40,42 @@ class ViewController: UINavigationController, UIImagePickerControllerDelegate, U
             videoToCompress: videoToCompress,
             destinationPath: destinationPath,
             size: nil,
-            compressionTransform: .keepSame,
             compressionConfig: .defaultConfig,
-            completionHandler: { [weak self] path in
-                print("---------------------------")
-                print("Success", path)
-                print("---------------------------")
-                print("Original video size:")
-                videoToCompress.verboseFileSizeInMB()
-                print("---------------------------")
-                print("Compressed video size:")
-                path.verboseFileSizeInMB()
-                print("---------------------------")
+            progressQueue: .main,
+            progressHandler: { progress in
+                print("---- \(progress.fractionCompleted * 100)% Completed ----")
+            },
+            completion: { [weak self] result in
+                guard let `self` = self else { return }
                 
-                self?.videoView?.configure(url: path.absoluteString)
-                self?.videoView?.isLoop = true
-                self?.videoView?.play()
-            },
-            errorHandler: { e in
-                print("---------------------------")
-                print("Error: ", e)
-                print("---------------------------")
-            },
-            cancelHandler: {
-                print("---------------------------")
-                print("Cancel")
-                print("---------------------------")
+                switch result {
+                case .success(let path):
+                    print("---------------------------")
+                    print("Success", path)
+                    print("---------------------------")
+                    print("Original video size:")
+                    videoToCompress.verboseFileSizeInMB()
+                    print("---------------------------")
+                    print("Compressed video size:")
+                    path.verboseFileSizeInMB()
+                    print("---------------------------")
+                    
+                    self.videoView?.configure(url: path.absoluteString)
+                    self.videoView?.isLoop = true
+                    self.videoView?.play()
+                    
+                    
+                case .failure(let error):
+                    print("---------------------------")
+                    print("Error: ", error)
+                    print("---------------------------")
+                    
+                    
+                case .cancelled:
+                    print("---------------------------")
+                    print("Cancelled")
+                    print("---------------------------")
+                }
             }
         )
         
