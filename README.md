@@ -1,11 +1,12 @@
 # Video Compressor using H264
-iOS - Fine tuned video compression in Swift 5
-Forked from [VideoCompressionTutorial](https://github.com/testfairy-blog/VideoCompressionTutorial)
-Changes :
-    - Added Swift 5 support
-    - Added Compression Progress Handler
-    - Added Result type completion handler
-    - Handled device camera video orientation fix automatically
+iOS - Fine tuned video compression in Swift 5  
+
+Forked from [VideoCompressionTutorial](https://github.com/testfairy-blog/VideoCompressionTutorial)  
+* Changes :  
+    - Added Swift 5 support  
+    - Added Compression Progress Handler  
+    - Added Result type completion handler  
+    - Handled device camera video orientation fix automatically  
 
 ## Features
 * iOS 9+
