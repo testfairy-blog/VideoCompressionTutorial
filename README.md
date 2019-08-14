@@ -1,5 +1,5 @@
 # Video Compression Tutorial
-iOS - Fine tuned video compression in Swift 4
+iOS - Fine tuned video compression in Swift 5
 
 ## Features
 * iOS 9+
@@ -10,6 +10,7 @@ iOS - Fine tuned video compression in Swift 4
 * Configurable a/v bitrate, video resolution, audio sample rate and many other fine tuning operations
 * Proper orientation correction for back/front camera
 * Low performance compression during [Background Execution](https://developer.apple.com/library/archive/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/BackgroundExecution/BackgroundExecution.html), even when device is locked. (`Application.beginBackgroundTask` must be called explicitly)
+* Progress Handling
 
 ## Install
 
@@ -31,16 +32,22 @@ let cancelable = compressh264VideoInBackground(
     destinationPath: destinationPath,
     size: nil, // nil preserves original,
     //size: (width: 1280, height: 720) 
-    compressionTransform: .keepSame,
     compressionConfig: .defaultConfig,
-    completionHandler: { [weak self] path in
-        // use path
+    progressQueue: .main,
+    progressHandler: { progress in 
+        // Handle Progress
     },
-    errorHandler: { e in
-        print("Error: ", e)
-    },
-    cancelHandler: {
-        print("Canceled.")
+    completion: { [weak self] result in
+        switch result {
+        case .success(let url):
+            // Handle destination URL
+            
+        case .failure(let error):
+            // Handle Error
+            
+        case .cancelled:
+            // Handle Cancelled case
+        }
     }
 )
 
