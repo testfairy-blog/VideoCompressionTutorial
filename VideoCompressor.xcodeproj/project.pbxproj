@@ -17,7 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F19BA0BD2134263F00C43288 /* VideoCompressionTutorial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCompressionTutorial.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F19BA0BD2134263F00C43288 /* VideoCompressor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCompressor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F19BA0C02134263F00C43288 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F19BA0C22134263F00C43288 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		F19BA0C52134263F00C43288 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -42,7 +42,7 @@
 		F19BA0B42134263F00C43288 = {
 			isa = PBXGroup;
 			children = (
-				F19BA0BF2134263F00C43288 /* VideoCompressionTutorial */,
+				F19BA0BF2134263F00C43288 /* VideoCompressor */,
 				F19BA0BE2134263F00C43288 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -50,12 +50,12 @@
 		F19BA0BE2134263F00C43288 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F19BA0BD2134263F00C43288 /* VideoCompressionTutorial.app */,
+				F19BA0BD2134263F00C43288 /* VideoCompressor.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F19BA0BF2134263F00C43288 /* VideoCompressionTutorial */ = {
+		F19BA0BF2134263F00C43288 /* VideoCompressor */ = {
 			isa = PBXGroup;
 			children = (
 				F19BA0C02134263F00C43288 /* AppDelegate.swift */,
@@ -67,15 +67,15 @@
 				F19BA0C92134264300C43288 /* LaunchScreen.storyboard */,
 				F19BA0CC2134264300C43288 /* Info.plist */,
 			);
-			path = VideoCompressionTutorial;
+			path = VideoCompressor;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F19BA0BC2134263F00C43288 /* VideoCompressionTutorial */ = {
+		F19BA0BC2134263F00C43288 /* VideoCompressor */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F19BA0CF2134264300C43288 /* Build configuration list for PBXNativeTarget "VideoCompressionTutorial" */;
+			buildConfigurationList = F19BA0CF2134264300C43288 /* Build configuration list for PBXNativeTarget "VideoCompressor" */;
 			buildPhases = (
 				F19BA0B92134263F00C43288 /* Sources */,
 				F19BA0BA2134263F00C43288 /* Frameworks */,
@@ -85,9 +85,9 @@
 			);
 			dependencies = (
 			);
-			name = VideoCompressionTutorial;
+			name = VideoCompressor;
 			productName = VideoCompressionTutorial;
-			productReference = F19BA0BD2134263F00C43288 /* VideoCompressionTutorial.app */;
+			productReference = F19BA0BD2134263F00C43288 /* VideoCompressor.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -105,7 +105,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F19BA0B82134263F00C43288 /* Build configuration list for PBXProject "VideoCompressionTutorial" */;
+			buildConfigurationList = F19BA0B82134263F00C43288 /* Build configuration list for PBXProject "VideoCompressor" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -118,7 +118,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F19BA0BC2134263F00C43288 /* VideoCompressionTutorial */,
+				F19BA0BC2134263F00C43288 /* VideoCompressor */,
 			);
 		};
 /* End PBXProject section */
@@ -288,8 +288,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = CS7AKZVD5B;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VideoCompressionTutorial/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -297,7 +297,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.testfairy.VideoCompressionTutorial;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -306,8 +307,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = CS7AKZVD5B;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VideoCompressionTutorial/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -315,7 +316,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.testfairy.VideoCompressionTutorial;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -323,7 +325,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F19BA0B82134263F00C43288 /* Build configuration list for PBXProject "VideoCompressionTutorial" */ = {
+		F19BA0B82134263F00C43288 /* Build configuration list for PBXProject "VideoCompressor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F19BA0CD2134264300C43288 /* Debug */,
@@ -332,7 +334,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F19BA0CF2134264300C43288 /* Build configuration list for PBXNativeTarget "VideoCompressionTutorial" */ = {
+		F19BA0CF2134264300C43288 /* Build configuration list for PBXNativeTarget "VideoCompressor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F19BA0D02134264300C43288 /* Debug */,

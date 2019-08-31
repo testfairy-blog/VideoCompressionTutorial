@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:VideoCompressionTutorial.xcodeproj">
+      location = "self:/Users/akaash-5552/Git-Repos/SwiftVideoCompressor/VideoCompressor.xcodeproj">
    </FileRef>
 </Workspace>

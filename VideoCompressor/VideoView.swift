@@ -33,7 +33,7 @@ class VideoView: UIView {
     }
     
     func play() {
-        if player?.timeControlStatus != AVPlayerTimeControlStatus.playing {
+        if player?.timeControlStatus != AVPlayer.TimeControlStatus.playing {
             player?.play()
         }
     }
@@ -44,13 +44,13 @@ class VideoView: UIView {
     
     func stop() {
         player?.pause()
-        player?.seek(to: kCMTimeZero)
+        player?.seek(to: CMTime.zero)
     }
     
     @objc func reachTheEndOfTheVideo(_ notification: Notification) {
         if isLoop {
             player?.pause()
-            player?.seek(to: kCMTimeZero)
+            player?.seek(to: CMTime.zero)
             player?.play()
         }
     }

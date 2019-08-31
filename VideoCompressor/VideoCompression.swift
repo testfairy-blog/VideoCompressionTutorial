@@ -3,17 +3,11 @@
 
 import AVFoundation
 import AssetsLibrary
-import Foundation
 import QuartzCore
 import UIKit
 
 // Global Queue for All Compressions
-fileprivate let compressQueue = DispatchQueue(label: "compressQueue", qos: .background)
-
-// Angle Conversion Utility
-extension Int {
-    fileprivate var degreesToRadiansCGFloat: CGFloat { return CGFloat(Double(self) * Double.pi / 180) }
-}
+fileprivate let compressQueue = DispatchQueue(label: "compressQueue", qos: .userInitiated)
 
 // Compression Interruption Wrapper
 class CancelableCompression {
@@ -31,13 +25,6 @@ struct CompressionError: LocalizedError {
     }
 }
 
-// Compression Transformation Configuration
-enum CompressionTransform {
-    case keepSame
-    case fixForBackCamera
-    case fixForFrontCamera
-}
-
 // Compression Encode Parameters
 struct CompressionConfig {
     let videoBitrate: Int
@@ -47,19 +34,27 @@ struct CompressionConfig {
     let audioBitrate: Int
     
     static let defaultConfig = CompressionConfig(
-        videoBitrate: 1024 * 750,
+        videoBitrate: 2 * 1024 * 1024,  // 2 mbps
         videomaxKeyFrameInterval: 30,
         avVideoProfileLevel: AVVideoProfileLevelH264High41,
         audioSampleRate: 22050,
-        audioBitrate: 80000
+        audioBitrate: 80000             // 256 kbps
     )
+}
+
+// Compression Result
+enum CompressionResult {
+    case success(URL)
+    case failure(Error)
+    case cancelled
 }
 
 // Video Size
 typealias CompressionSize = (width: Int, height: Int)
 
+
 // Compression Operation (just call this)
-func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, size: CompressionSize?, compressionTransform: CompressionTransform, compressionConfig: CompressionConfig, completionHandler: @escaping (URL)->(), errorHandler: @escaping (Error)->(), cancelHandler: @escaping ()->()) -> CancelableCompression {
+func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, size: CompressionSize?, compressionConfig: CompressionConfig, progressQueue: DispatchQueue, progressHandler: ((Progress)->())?, completion: @escaping (CompressionResult)->()) -> CancelableCompression {
     
     // Globals to store during compression
     class CompressionContext {
@@ -97,12 +92,12 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
             
             if compressionContext.cgContext == nil {
                 compressionContext.cgContext = CGContext(data: pxdata,
-                                                          width: imageWidth,
-                                                          height: imageHeight,
-                                                          bitsPerComponent: 8,
-                                                          bytesPerRow: CVPixelBufferGetBytesPerRow(_pxbuffer),
-                                                          space: compressionContext.colorSpace,
-                                                          bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue)
+                                                         width: imageWidth,
+                                                         height: imageHeight,
+                                                         bitsPerComponent: 8,
+                                                         bytesPerRow: CVPixelBufferGetBytesPerRow(_pxbuffer),
+                                                         space: compressionContext.colorSpace,
+                                                         bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue)
             }
             
             if let _context = compressionContext.cgContext, let image = image {
@@ -120,10 +115,25 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
         return nil
     }
     
+    // EXIF Orientation fix for Videos
+    func getExifOrientationFix(for orientation: UIImage.Orientation) -> Int32 {
+        switch orientation {
+        case .up: return 6
+        case .down: return 8
+        case .left: return 3
+        case .right: return 1
+        case .upMirrored: return 2
+        case .downMirrored: return 4
+        case .leftMirrored: return 5
+        case .rightMirrored: return 7
+        @unknown default: return 1
+        }
+    }
+    
     // Asset, Output File
     let avAsset = AVURLAsset(url: videoToCompress)
     let filePath = destinationPath
-
+    
     do {
         // Reader and Writer
         let writer = try AVAssetWriter(outputURL: filePath, fileType: AVFileType.mp4)
@@ -151,13 +161,14 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
         
         let sourcePixelBufferAttributesDictionary: Dictionary<String, Any> = [
             String(kCVPixelBufferPixelFormatTypeKey) : Int(kCVPixelFormatType_32RGBA),
-            String(kCVPixelFormatOpenGLESCompatibility) : kCFBooleanTrue
+            String(kCVPixelFormatOpenGLESCompatibility) : kCFBooleanTrue as Any
         ]
         let pixelBufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoInput, sourcePixelBufferAttributes: sourcePixelBufferAttributesDictionary)
         
         videoInput.performsMultiPassEncodingIfSupported = true
         guard writer.canAdd(videoInput) else {
-            errorHandler(CompressionError(title: "Cannot add video input"))
+            let error = CompressionError(title: "Cannot add video input")
+            completion(.failure(error))
             return CancelableCompression()
         }
         writer.add(videoInput)
@@ -180,7 +191,8 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
         audioInput.expectsMediaDataInRealTime = false
         
         guard writer.canAdd(audioInput) else {
-            errorHandler(CompressionError(title: "Cannot add audio input"))
+            let error = CompressionError(title: "Cannot add audio input")
+            completion(.failure(error))
             return CancelableCompression()
         }
         writer.add(audioInput)
@@ -195,7 +207,8 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
         readerVideoTrackOutput.alwaysCopiesSampleData = true
         
         guard reader.canAdd(readerVideoTrackOutput) else {
-            errorHandler(CompressionError(title: "Cannot add video output"))
+            let error = CompressionError(title: "Cannot add video output")
+            completion(.failure(error))
             return CancelableCompression()
         }
         reader.add(readerVideoTrackOutput)
@@ -209,28 +222,21 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
         readerAudioTrackOutput.alwaysCopiesSampleData = true
         
         guard reader.canAdd(readerAudioTrackOutput) else {
-            errorHandler(CompressionError(title: "Cannot add video output"))
+            let error = CompressionError(title: "Cannot add audio output")
+            completion(.failure(error))
             return CancelableCompression()
         }
         reader.add(readerAudioTrackOutput)
         
         // Orientation Fix for Videos Taken by Device Camera
-        var appliedTransform: CGAffineTransform
-        switch compressionTransform {
-        case .fixForFrontCamera:
-            appliedTransform = CGAffineTransform(rotationAngle: 90.degreesToRadiansCGFloat).scaledBy(x:-1.0, y:1.0)
-        case .fixForBackCamera:
-            appliedTransform = CGAffineTransform(rotationAngle: 270.degreesToRadiansCGFloat)
-        case .keepSame:
-            appliedTransform = CGAffineTransform.identity
-        }
+        let orientationInt = getExifOrientationFix(for: avAsset.orientation)
         
         // Begin Compression
-        reader.timeRange = CMTimeRangeMake(kCMTimeZero, avAsset.duration)
+        reader.timeRange = CMTimeRangeMake(start: CMTime.zero, duration: avAsset.duration)
         writer.shouldOptimizeForNetworkUse = true
         reader.startReading()
         writer.startWriting()
-        writer.startSession(atSourceTime: kCMTimeZero)
+        writer.startSession(atSourceTime: CMTime.zero)
         
         // Compress in Background
         let cancelable = CancelableCompression()
@@ -245,29 +251,38 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
             var videoDone = false
             var audioDone = false
             
+            // Total Frames
+            let durationInSeconds = avAsset.duration.seconds
+            let frameRate = videoTrack.nominalFrameRate
+            let totalFrames = ceil(durationInSeconds * Double(frameRate))
+            
+            // Progress
+            let totalUnits = Int64(totalFrames)
+            let progress = Progress(totalUnitCount: totalUnits)
+            
             while !videoDone || !audioDone {
                 // Check for Writer Errors (out of storage etc.)
-                if writer.status == AVAssetWriterStatus.failed {
+                if writer.status == .failed {
                     reader.cancelReading()
                     writer.cancelWriting()
                     compressionContext.pxbuffer = nil
                     compressionContext.cgContext = nil
                     
                     if let e = writer.error {
-                        errorHandler(e)
+                        completion(.failure(e))
                         return
                     }
                 }
                 
                 // Check for Reader Errors (source file corruption etc.)
-                if reader.status == AVAssetReaderStatus.failed {
+                if reader.status == .failed {
                     reader.cancelReading()
                     writer.cancelWriting()
                     compressionContext.pxbuffer = nil
                     compressionContext.cgContext = nil
                     
                     if let e = reader.error {
-                        errorHandler(e)
+                        completion(.failure(e))
                         return
                     }
                 }
@@ -278,7 +293,7 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
                     writer.cancelWriting()
                     compressionContext.pxbuffer = nil
                     compressionContext.cgContext = nil
-                    cancelHandler()
+                    completion(.cancelled)
                     return
                 }
                 
@@ -287,7 +302,11 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
                     // Copy a single frame from source to destination with applied transforms
                     if let vBuffer = readerVideoTrackOutput.copyNextSampleBuffer(), CMSampleBufferDataIsReady(vBuffer) {
                         frameCount += 1
-                        print("Encoding frame: ", frameCount)
+                        
+                        if let handler = progressHandler {
+                            progress.completedUnitCount = Int64(frameCount)
+                            progressQueue.async { handler(progress) }
+                        }
                         
                         autoreleasepool {
                             let presentationTime = CMSampleBufferGetPresentationTimeStamp(vBuffer)
@@ -295,7 +314,7 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
                             
                             CVPixelBufferLockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue:0))
                             
-                            let transformedFrame = CIImage(cvPixelBuffer: pixelBuffer).transformed(by: appliedTransform)
+                            let transformedFrame = CIImage(cvPixelBuffer: pixelBuffer).oriented(forExifOrientation: orientationInt)
                             let frameImage = context.createCGImage(transformedFrame, from: transformedFrame.extent)
                             let frameBuffer = getCVPixelBuffer(frameImage, compressionContext: compressionContext)
                             
@@ -330,18 +349,36 @@ func compressh264VideoInBackground(videoToCompress: URL, destinationPath: URL, s
             }
             
             // Write everything to output file
-            writer.finishWriting(completionHandler: {
+            writer.finishWriting() {
                 compressionContext.pxbuffer = nil
                 compressionContext.cgContext = nil
-                completionHandler(filePath)
-            })
+                completion(.success(filePath))
+            }
         }
         
         // Return a cancel wrapper for users to let them interrupt the compression
         return cancelable
     } catch {
         // Error During Reader or Writer Creation
-        errorHandler(error)
+        completion(.failure(error))
         return CancelableCompression()
+    }
+}
+
+
+
+extension AVAsset {
+    fileprivate var orientation: UIImage.Orientation {
+        if let track = tracks(withMediaType: .video).first {
+            let size = track.naturalSize
+            let transform = track.preferredTransform
+            switch (transform.tx, transform.ty) {
+            case (0, 0): return .right
+            case (size.width, size.height): return .left
+            case (0, size.width): return .down
+            default: return .up
+            }
+        }
+        return .up
     }
 }
