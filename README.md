@@ -1,7 +1,7 @@
 # Video Compression Tutorial
-iOS - Fine tuned video compression in Swift 4. 
+iOS - Fine tuned video compression in Swift 4. Code materials for [this blog post](https://testfairy.com/blog/fine-tuned-video-compression-in-ios-swift-4-no-dependencies/).
 
-Checkout branches for other versions of Swift.
+Check out other  branches for different versions of Swift.
 
 ## Features
 * iOS 9+
